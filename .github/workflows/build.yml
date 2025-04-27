@@ -24,6 +24,6 @@ jobs:
         env:
           REPO: self
           BRANCH: build
-          FOLDER: webroot/dist
+          FOLDER: .
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
