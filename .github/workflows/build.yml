@@ -20,7 +20,7 @@ jobs:
         run: npm run build
 
       - name: Up .gitignore
-        run: awk '/webroot/dist {next} {print}' .gitignore > temp && mv temp .gitignore
+        run: sed -i '/webroot/d' .gitignore
 
       - name: Push
         uses: s0/git-publish-subdir-action@develop
