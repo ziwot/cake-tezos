@@ -20,9 +20,8 @@ jobs:
     uses: inpsyde/reusable-workflows/.github/workflows/build-and-push-assets.yml@main
     with:
       ASSETS_TARGET_PATHS: "./webroot/dist"
+      ASSETS_TARGET_FILES: "./cake-tezos.js"
       BUILT_BRANCH_NAME: ${{ github.ref_name }}-built
     secrets:
       GITHUB_USER_EMAIL: ${{ secrets.DEPLOYBOT_EMAIL }}
       GITHUB_USER_NAME: ${{ secrets.DEPLOYBOT_USER }}
-      GITHUB_USER_SSH_KEY: ${{ secrets.DEPLOYBOT_SSH_PRIVATE_KEY }}
-      GITHUB_USER_SSH_PUBLIC_KEY: ${{ secrets.DEPLOYBOT_SSH_PUBLIC_KEY }}
