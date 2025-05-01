@@ -1,3 +1,4 @@
 /vendor
 /node_modules
 /webroot/dist
+.phpunit.result.cache
