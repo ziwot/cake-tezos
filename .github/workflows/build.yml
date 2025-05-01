@@ -1,60 +1,26 @@
-name: Generate a build and push to another branch
+name: Build and push assets
 
 on:
+  workflow_dispatch:
   push:
+    tags: [ '*' ]
     branches:
-      - main
+      - '*'
+      - '!*-built'
+    paths:
+      - '**workflows/build.yml' # the workflow file itself
+      - '**.js'
+      - '**package-lock.json'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  test:
-    name: Check and test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.1'
-          extensions: gmp
-
-      - name: Get composer cache directory
-        id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: Cache composer dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
-      - name: Install dependencies
-        run: composer install --no-progress --prefer-dist
-
-      - name: cs check and test
-        run: composer run-script check
-
-  build:
-    runs-on: ubuntu-latest
-    name: Build and Push
-    steps:
-      - name: git-checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-
-      - name: Install all dependencies
-        run: npm install
-
-      - name: Build
-        run: npm run build
-
-      - name: Up .gitignore
-        run: sed -i '/webroot/d' .gitignore
-
-      - name: Push
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: build assets
-          branch: build
+  build-assets:
+    uses: inpsyde/reusable-workflows/.github/workflows/build-and-push-assets.yml@main
+    with:
+      ASSETS_TARGET_PATHS: "./webroot/dist"
+      BUILT_BRANCH_NAME: ${{ github.ref_name }}-built
+    secrets:
+      GITHUB_USER_EMAIL: ${{ secrets.DEPLOYBOT_EMAIL }}
+      GITHUB_USER_NAME: ${{ secrets.DEPLOYBOT_USER }}
