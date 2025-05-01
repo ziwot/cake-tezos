@@ -2,3 +2,4 @@
 /node_modules
 /webroot/dist
 .phpunit.result.cache
+php_errors.log
