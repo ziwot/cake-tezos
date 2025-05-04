@@ -25,7 +25,7 @@ class UsersController extends AppController
     /**
      * @return \Cake\Http\Response|null|void
      */
-    public function login(): Response|null|null
+    public function login(): ?Response
     {
         $result = $this->Authentication->getResult();
 
@@ -41,10 +41,10 @@ class UsersController extends AppController
     /**
      * @return \Cake\Http\Response|null|void
      */
-    public function logout(): Response|null|null
+    public function logout(): ?Response
     {
         $this->Authentication->logout();
 
-        return $this->redirect(['controller' => 'Users', 'action' => 'login']);
+        return $this->redirect(['_name' => 'homepage']);
     }
 }

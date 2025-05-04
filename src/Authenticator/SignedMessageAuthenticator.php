@@ -7,7 +7,7 @@ use Authentication\Authenticator\AbstractAuthenticator;
 use Authentication\Authenticator\Result;
 use Authentication\Authenticator\ResultInterface;
 use Authentication\UrlChecker\UrlCheckerTrait;
-use CakeTezos\Identifier\TezosIdentifier;
+use CakeTezos\Identifier\TezosBaseIdentifier;
 use Psr\Http\Message\ServerRequestInterface;
 use function implode;
 use function sprintf;
@@ -33,10 +33,10 @@ class SignedMessageAuthenticator extends AbstractAuthenticator
         'loginUrl' => '/signin',
         'urlChecker' => 'Authentication.Default',
         'fields' => [
-            TezosIdentifier::CREDENTIAL_PK => 'pk',
-            TezosIdentifier::CREDENTIAL_PKH => 'pkh',
-            TezosIdentifier::CREDENTIAL_MESSAGE => 'message',
-            TezosIdentifier::CREDENTIAL_SIGNATURE => 'signature',
+            TezosBaseIdentifier::CREDENTIAL_PK => 'pk',
+            TezosBaseIdentifier::CREDENTIAL_PKH => 'pkh',
+            TezosBaseIdentifier::CREDENTIAL_MESSAGE => 'message',
+            TezosBaseIdentifier::CREDENTIAL_SIGNATURE => 'signature',
         ],
     ];
 
