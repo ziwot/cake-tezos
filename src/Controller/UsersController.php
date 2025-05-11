@@ -31,10 +31,10 @@ class UsersController extends AppController
 
         if ($result && $result->isValid()) {
             return $this->response->withType('application/json')->withStatus(200)
-                ->withStringBody('OK');
+                ->withStringBody(json_encode($result->getData()));
         } else {
             return $this->response->withType('application/json')->withStatus(400)
-                ->withStringBody('Backend Failure.');
+                ->withStringBody(json_encode($result->getErrors()));
         }
     }
 

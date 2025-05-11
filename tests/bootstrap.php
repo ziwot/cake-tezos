@@ -21,7 +21,7 @@ use Cake\Datasource\ConnectionManager;
 use Cake\Routing\Router;
 use Cake\TestSuite\Fixture\SchemaLoader;
 use Cake\Utility\Security;
-use CakeTezos\Plugin as CakeTezosPlugin;
+use CakeTezos\CakeTezosPlugin;
 use function Cake\Core\env;
 
 $findRoot = function ($root) {

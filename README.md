@@ -10,11 +10,27 @@ This plugin provides:
 Install with :
 
 ```sh
-composer require ziwot/cake-tezos:dev-main
+composer require ziwot/cake-tezos:dev-main-built
 ```
 
 Load the plugin :
 
 ```sh
 bin/cake plugin load CakeTezos
+```
+
+Link assets :
+
+```sh
+cake plugin assets symlink
+```
+
+Load Authenticator and Indentifier :
+
+```php
+// Load Authenticator
+$service->loadAuthenticator('CakeTezos.SignedMessage');
+
+// Load identifier
+$service->loadIdentifier('CakeTezos.TezosBase');
 ```
