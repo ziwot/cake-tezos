@@ -18,10 +18,14 @@ export const connect = async (
 
         // create the message to be signed
         const messagePayload = createMessagePayload({
-            domain: domain,
+            domain,
             address: permissions.address,
             uri: dappUrl,
             version: "1",
+            chainId,
+            statement,
+            nonce,
+            issuedAt,
         });
 
         // request the signature

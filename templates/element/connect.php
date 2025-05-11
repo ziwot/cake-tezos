@@ -22,7 +22,7 @@ use Cake\Routing\Router;
 <script type="importmap">
     {
         "imports": {
-            "CakeTezos": "/cake_tezos/dist/cake-tezos.js"
+            "CakeTezos": "/cake_tezos/dist/cake-tezos.js?v=ff"
         }
     }
 </script>
@@ -38,8 +38,8 @@ use Cake\Routing\Router;
         () => connect(
             "<?= Router::fullBaseUrl() ?>/cake-tezos",
             "<?= $this->request->getAttribute('csrfToken') ?>",
-            "NetXdQprcVkpaWU", // NetXnHfVqm9iesp for ghostnet
-            "I accept the SIWT Terms of Service: https://siwt.xyz/tos",
+            "NetXdQprcVkpaWU",
+            "<?= $statement ?? 'I accept the Terms of Service' ?>",
             "<?= random_int(1, 100000000) ?>",
             "<?= Time::now()->format(DateTimeImmutable::ATOM) ?>",
         )
