@@ -1,5 +1,5 @@
 <?php
-
+use Cake\I18n\Time;
 use Cake\Routing\Router;
 ?>
 
@@ -22,7 +22,7 @@ use Cake\Routing\Router;
 <script type="importmap">
     {
         "imports": {
-            "CakeTezos": "/js/cake-tezos.js"
+            "CakeTezos": "/cake_tezos/dist/cake-tezos.js"
         }
     }
 </script>
@@ -36,8 +36,12 @@ use Cake\Routing\Router;
     connectBtn?.addEventListener(
         "click",
         () => connect(
-            "<?= Router::fullBaseUrl() ?>",
-            "<?= $this->request->getAttribute('csrfToken') ?>"
+            "<?= Router::fullBaseUrl() ?>/cake-tezos",
+            "<?= $this->request->getAttribute('csrfToken') ?>",
+            "NetXdQprcVkpaWU", // NetXnHfVqm9iesp for ghostnet
+            "I accept the SIWT Terms of Service: https://siwt.xyz/tos",
+            "<?= random_int(1, 100000000) ?>",
+            "<?= Time::now()->format(DateTimeImmutable::ATOM) ?>",
         )
     );
 </script>

@@ -30,7 +30,7 @@ class SignedMessageAuthenticator extends AbstractAuthenticator
      * @var array<string, mixed>
      */
     protected array $_defaultConfig = [
-        'loginUrl' => '/signin',
+        'loginUrl' => '/cake-tezos/signin',
         'urlChecker' => 'Authentication.Default',
         'fields' => [
             TezosBaseIdentifier::CREDENTIAL_PK => 'pk',
