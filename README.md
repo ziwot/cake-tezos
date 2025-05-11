@@ -34,3 +34,15 @@ $service->loadAuthenticator('CakeTezos.SignedMessage');
 // Load identifier
 $service->loadIdentifier('CakeTezos.TezosBase');
 ```
+
+In a view, load the element to allow connect :
+
+```php
+<?= $this->element('CakeTezos.connect') ?>
+```
+
+The statement is configurable :
+
+```php
+<?= $this->element('CakeTezos.connect', ['statement' => 'I accept the conditions']) ?>
+```
