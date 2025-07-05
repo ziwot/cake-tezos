@@ -6,11 +6,11 @@ $routes->plugin(
         // SIWT expects a 'signin' endpoint
         $routes->post(
             '/signin',
-            ['controller' => 'Users', 'action' => 'login'],
+            ['controller' => 'Wallet', 'action' => 'login'],
         );
         $routes->get(
             '/logout',
-            ['controller' => 'Users', 'action' => 'logout'],
+            ['controller' => 'Wallet', 'action' => 'logout'],
         );
     },
 );

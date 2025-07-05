@@ -17,7 +17,7 @@ This plugin provides:
 Install with :
 
 ```sh
-composer require ziwot/cake-tezos:dev-main-built
+composer require ziwot/cake-tezos
 ```
 
 Load the plugin :
@@ -32,7 +32,20 @@ Link assets :
 cake plugin assets symlink
 ```
 
-Load Authenticator and Indentifier :
+You should also add it to your `.gitignore` :
+
+```
+# Plugins
+/webroot/cake_tezos
+```
+
+Of course, when you deploy to prod, then, copy the assets :
+
+```sh
+cake plugin assets copy
+```
+
+Load Authenticator and Identifier :
 
 ```php
 // Load Authenticator

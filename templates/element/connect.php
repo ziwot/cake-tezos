@@ -1,4 +1,5 @@
 <?php
+
 use Cake\I18n\Time;
 use Cake\Routing\Router;
 ?>
@@ -7,7 +8,7 @@ use Cake\Routing\Router;
     Welcome, <?= $this->Identity->get('address') ?>
     <?= $this->Html->link(
         $this->Html->icon('power'),
-        ['plugin' => 'CakeTezos', 'controller' => 'Users', 'action' => 'logout'],
+        ['plugin' => 'CakeTezos', 'controller' => 'Wallet', 'action' => 'logout'],
         [
             'class' => 'btn',
             'escape' => false,
