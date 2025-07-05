@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace CakeTezos\Controller;
@@ -7,9 +8,9 @@ use Cake\Event\EventInterface;
 use Cake\Http\Response;
 
 /**
- * Users Controller
+ * Wallet Controller
  */
-class UsersController extends AppController
+class WalletController extends AppController
 {
     /**
      * @param \Cake\Event\EventInterface $event
