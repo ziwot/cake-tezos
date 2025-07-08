@@ -12,5 +12,10 @@ $routes->plugin(
             '/logout',
             ['controller' => 'Wallet', 'action' => 'logout'],
         );
+
+        $routes->post(
+            '/network',
+            ['controller' => 'Network', 'action' => 'select'],
+        );
     },
 );
