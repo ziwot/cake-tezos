@@ -1,4 +1,4 @@
-import { BeaconEvent, DAppClient, NetworkType } from "@airgap/beacon-sdk";
+import { BeaconEvent, DAppClient } from "@airgap/beacon-sdk";
 import { createMessagePayload, signIn } from "@siwt/sdk";
 
 export const connect = async (

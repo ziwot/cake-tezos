@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace CakeTezos\View\Helper;
@@ -12,7 +11,6 @@ class TzHelper extends Helper
      * Returns shortened tz address for display
      *
      * @param string $address
-     *
      * @return string
      */
     public function shortenAddress(string $address): string
