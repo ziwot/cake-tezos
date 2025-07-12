@@ -13,9 +13,9 @@ $selectedNetwork = $this->request->getSession()->read('CakeTezos.Network');
 ]]) ?>
 
 <?= $this->Form->select('network', [
-    Network::Mainnet->value,
-    Network::Ghostnet->value,
-    Network::Local->value,
+    Network::Mainnet->value => Network::Mainnet->label(),
+    Network::Ghostnet->value => Network::Ghostnet->label(),
+    Network::Local->value => Network::Local->label(),
 ], [
     'onchange' => 'this.form.submit()',
     'default' => $selectedNetwork,
