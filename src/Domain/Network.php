@@ -14,11 +14,48 @@ enum Network: string
     /**
      * @return string
      */
+    public function label(): string
+    {
+        return match ($this) {
+            Network::Mainnet => 'Mainnet',
+            Network::Ghostnet => 'Ghostnet',
+            Network::Local => 'Local',
+        };
+    }
+
+    /**
+     * @return string
+     */
+    public function networkId(): string
+    {
+        return match ($this) {
+            Network::Mainnet => 'NetXdQprcVkpaWU',
+            Network::Ghostnet => 'NetXnHfVqm9iesp',
+            Network::Local => 'NetX',
+        };
+    }
+
+    /**
+     * @return array
+     */
+    public function network(): array
+    {
+        return [
+            'type' => $this === Network::Local
+                ? 'custom'
+                : $this->value,
+            'rpcUrl' => $this->rpcUrl(),
+        ];
+    }
+
+    /**
+     * @return string
+     */
     public function rpcUrl(): string
     {
         return match ($this) {
             Network::Mainnet => 'https://rpc.tzbeta.net',
-            Network::Ghostnet => 'https://ghostnet.tezos.marigold.dev',
+            Network::Ghostnet => 'https://rpc.ghostnet.teztnets.com',
             Network::Local => 'http://localhost:20000',
         };
     }
