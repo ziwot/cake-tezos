@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace CakeTezos\Controller;
@@ -22,6 +21,7 @@ class NetworkController extends AppController
 
         $this->Authentication->allowUnauthenticated(['select']);
     }
+
     /**
      * @return \Cake\Http\Response|null|void
      */

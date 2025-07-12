@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace CakeTezos\Domain;
 
@@ -12,7 +13,9 @@ readonly class Mutez
      *
      * @param int $mutez
      */
-    public function __construct(private int $mutez) {}
+    public function __construct(private int $mutez)
+    {
+    }
 
     /**
      * Returns tez
