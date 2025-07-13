@@ -5,8 +5,7 @@ use Cake\Routing\Router;
 use CakeTezos\Domain\Network;
 
 $selectedNetwork = $this->request->getSession()->read('CakeTezos.Network');
-$networkId = Network::from($selectedNetwork)->networkId();
-$network = Network::from($selectedNetwork)->network();
+$network = Network::from($selectedNetwork);
 ?>
 
 <?php if ($this->Identity->isLoggedIn()) : ?>
@@ -20,10 +19,13 @@ $network = Network::from($selectedNetwork)->network();
                 'cache' => [
                     'config' => 'short',
                     'key' =>
-                    'balance_' .
+                    sprintf(
+                        'balance_%s_%s',
+                        $network->network()['type'],
                         $this->Identity->get('address'),
+                    ),
                 ],
-            ],
+             ],
         ) ?>)
         <?php echo $this->Html->link(
             $this->Html->icon('power'),
@@ -31,7 +33,7 @@ $network = Network::from($selectedNetwork)->network();
                 'prefix' => false,
                 'plugin' => 'CakeTezos',
                 'controller' => 'Wallet',
-                'action' => 'logout'
+                'action' => 'logout',
             ],
             [
                 'class' => 'btn',
@@ -64,10 +66,10 @@ $network = Network::from($selectedNetwork)->network();
     connectBtn?.addEventListener(
         "click",
         () => connect(
-            <?= json_encode($network, JSON_UNESCAPED_SLASHES) ?>,
+            <?= json_encode($network->network(), JSON_UNESCAPED_SLASHES) ?>,
             "<?= Router::fullBaseUrl() ?>/cake-tezos",
             "<?= $this->request->getAttribute('csrfToken') ?>",
-            "<?= $networkId ?>",
+            "<?= $network->networkId() ?>",
             "<?= $statement ?? 'I accept the Terms of Service' ?>",
             "<?= random_int(1, 100000000) ?>",
             "<?= Time::now()->format(DateTimeImmutable::ATOM) ?>",
