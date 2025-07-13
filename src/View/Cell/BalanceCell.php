@@ -5,18 +5,22 @@ namespace CakeTezos\View\Cell;
 
 use Cake\View\Cell;
 use CakeTezos\Domain\Mutez;
+use CakeTezos\Domain\Network;
 use Tzkt\Api\AccountsApi;
+use Tzkt\Configuration;
 use function Tzkt\get_client;
 
 class BalanceCell extends Cell
 {
     /**
-     * @param string $network
      * @return void
      */
-    public function display(string $network = 'local'): void
+    public function display(): void
     {
-        $AccountsApi = new AccountsApi(get_client());
+        $network = Network::from($this->request->getSession()->read('CakeTezos.Network'));
+        $config = (new Configuration())->setHost($network->tzktUrl());
+
+        $AccountsApi = new AccountsApi(get_client(), $config);
 
         $identity = $this->request->getAttribute('identity')->getOriginalData();
         $mutez = $AccountsApi->accountsGetBalance($identity['address']);
