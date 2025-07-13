@@ -6,10 +6,11 @@ $selectedNetwork = $this->request->getSession()->read('CakeTezos.Network');
 ?>
 
 <?= $this->Form->create(null, ['url' => [
+    'prefix' => false,
     'plugin' => 'CakeTezos',
     'controller' => 'Network',
     'action' => 'select',
-    '_method' => 'post'
+    '_method' => 'post',
 ]]) ?>
 
 <?= $this->Form->select('network', [
@@ -20,4 +21,4 @@ $selectedNetwork = $this->request->getSession()->read('CakeTezos.Network');
     'onchange' => 'this.form.submit()',
     'default' => $selectedNetwork,
 ]); ?>
-<?= $this->Form->end() ?>
+<?= $this->Form->end();
