@@ -32,7 +32,7 @@ enum Network: string
         return match ($this) {
             Network::Mainnet => 'NetXdQprcVkpaWU',
             Network::Ghostnet => 'NetXnHfVqm9iesp',
-            Network::Local => 'NetX',
+            Network::Local => 'NetXtJqPyJGB6Pc',
         };
     }
 

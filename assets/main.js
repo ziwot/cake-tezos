@@ -15,11 +15,12 @@ export const connect = async (
         name: domain,
         enableMetrics: false,
         preferredNetwork: network.type,
+        network,
     });
 
     try {
         // request wallet permissions with Beacon dAppClient
-        const permissions = await dAppClient.requestPermissions({ network });
+        const permissions = await dAppClient.requestPermissions();
 
         // create the message to be signed
         const messagePayload = createMessagePayload({

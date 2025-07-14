@@ -52,7 +52,7 @@ $network = Network::from($selectedNetwork);
 <script type="importmap">
     {
         "imports": {
-            "CakeTezos": "/cake_tezos/dist/cake-tezos.js?v=bbb"
+            "CakeTezos": "/cake_tezos/dist/cake-tezos.js?v=ddd"
         }
     }
 </script>
