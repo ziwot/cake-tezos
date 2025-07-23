@@ -4,4 +4,4 @@
  * @var mixed $balance
  */
 ?>
-<?= $balance ?> XTZ
+<?= $balance ?> tez
