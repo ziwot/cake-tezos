@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var mixed $statement
+ */
 
 use Cake\I18n\Time;
 use Cake\Routing\Router;
