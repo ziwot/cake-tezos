@@ -7,6 +7,9 @@ use Cake\Controller\Component;
 use Cake\Event\EventInterface;
 use CakeTezos\Domain\Network;
 
+/**
+ * @method \App\Controller\AppController getController()
+ */
 class NetworkComponent extends Component
 {
     /**
