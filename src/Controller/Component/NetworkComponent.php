@@ -46,8 +46,8 @@ class NetworkComponent extends Component
     /**
      * Get network
      */
-    public function get(): void
+    public function get(): string
     {
-        $this->getController()->getRequest()->getSession()->read('CakeTezos.Network');
+        return $this->getController()->getRequest()->getSession()->read('CakeTezos.Network');
     }
 }
