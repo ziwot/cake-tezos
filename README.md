@@ -48,11 +48,10 @@ cake plugin assets copy
 Load Authenticator and Identifier :
 
 ```php
-// Load Authenticator
-$service->loadAuthenticator('CakeTezos.SignedMessage');
-
-// Load identifier
-$service->loadIdentifier('CakeTezos.TezosBase');
+// Load Authenticator & Identifier
+$service->loadAuthenticator('CakeTezos.SignedMessage', [
+    'identifier' => 'CakeTezos.TezosBase',
+]);
 ```
 
 In a view, load the element to allow connect :
