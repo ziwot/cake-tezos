@@ -1,5 +1,6 @@
 /vendor
 /node_modules
 /webroot/dist
+/tmp
 .phpunit.result.cache
 php_errors.log

@@ -37,7 +37,7 @@ enum Network: string
     }
 
     /**
-     * @return array
+     * @return array{type: string, rpcUrl: string}
      */
     public function network(): array
     {

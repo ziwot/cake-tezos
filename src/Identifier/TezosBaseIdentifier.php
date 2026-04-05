@@ -43,7 +43,8 @@ class TezosBaseIdentifier extends AbstractIdentifier
     ];
 
     /**
-     * @inheritDoc
+     * @param array<string, string> $credentials
+     * @return \ArrayAccess<string, string>|array<string, string>|null
      */
     public function identify(array $credentials): ArrayAccess|array|null
     {

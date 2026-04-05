@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace CakeTezos\Controller\Component;
 
 use Cake\Controller\Component;
-use Cake\Event\EventInterface;
+use Cake\Event\Event;
 use CakeTezos\Domain\Network;
 
 /**
@@ -15,7 +15,7 @@ class NetworkComponent extends Component
     /**
      * Default configuration
      *
-     * @var array<string, \CakeTezos\Domain\Network>
+     * @var array<string, string>
      */
     protected array $_defaultConfig = [
         'network' => Network::Local->value,
@@ -24,9 +24,9 @@ class NetworkComponent extends Component
     /**
      * beforeFilter callback.
      *
-     * @return void
+     * @param \Cake\Event\Event<\Cake\Controller\Controller> $event
      */
-    public function beforeFilter(EventInterface $event): void
+    public function beforeFilter(Event $event): void
     {
         if (!$this->getController()->getRequest()->getSession()->check('CakeTezos.Network')) {
             $this->getController()->getRequest()->getSession()->write('CakeTezos.Network', $this->getConfig('network'));

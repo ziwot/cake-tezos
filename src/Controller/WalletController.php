@@ -12,7 +12,7 @@ use Cake\Http\Response;
 class WalletController extends AppController
 {
     /**
-     * @param \Cake\Event\EventInterface $event
+     * @param \Cake\Event\EventInterface<\Cake\Controller\Controller> $event
      * @return void
      */
     public function beforeFilter(EventInterface $event): void
@@ -23,23 +23,28 @@ class WalletController extends AppController
     }
 
     /**
-     * @return \Cake\Http\Response|null|void
+     * @return \Cake\Http\Response|null
      */
     public function login(): ?Response
     {
         $result = $this->Authentication->getResult();
 
-        if ($result && $result->isValid()) {
-            return $this->response->withType('application/json')->withStatus(200)
-                ->withStringBody(json_encode($result->getData()));
-        } else {
+        if (!$result || !$result->isValid()) {
+            $errors = $result?->getErrors() ?? [];
+            $body = json_encode($errors) ?: '[]';
+
             return $this->response->withType('application/json')->withStatus(400)
-                ->withStringBody(json_encode($result->getErrors()));
+                ->withStringBody($body);
         }
+
+        $body = json_encode($result->getData()) ?: '{}';
+
+        return $this->response->withType('application/json')->withStatus(200)
+            ->withStringBody($body);
     }
 
     /**
-     * @return \Cake\Http\Response|null|void
+     * @return \Cake\Http\Response|null
      */
     public function logout(): ?Response
     {

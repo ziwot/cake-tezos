@@ -20,7 +20,8 @@ class BalanceCell extends Cell
 
         $identity = $this->request->getAttribute('identity')->getOriginalData();
 
-        $mutez = (int)$client->getContextContractsByContractIdBalance($identity['address']);
+        $response = $client->getContextContractsByContractIdBalance($identity['address']);
+        $mutez = (int)(is_string($response) ? $response : '0');
         $balance = (new Mutez($mutez))->tez();
 
         $this->set('balance', $balance);
