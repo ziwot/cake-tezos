@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace CakeTezos\Controller;
 
 use Cake\Event\EventInterface;
-use Cake\Http\Response;
 
 /**
  * Network Controller
@@ -12,7 +11,7 @@ use Cake\Http\Response;
 class NetworkController extends AppController
 {
     /**
-     * @param \Cake\Event\EventInterface $event
+     * @param \Cake\Event\EventInterface<\Cake\Controller\Controller> $event
      * @return void
      */
     public function beforeFilter(EventInterface $event): void
@@ -25,7 +24,7 @@ class NetworkController extends AppController
     /**
      * @return \Cake\Http\Response|null|void
      */
-    public function select(): ?Response
+    public function select()
     {
         if ($this->request->is('post')) {
             $this->request->getSession()->write('CakeTezos.Network', $this->request->getData('network'));

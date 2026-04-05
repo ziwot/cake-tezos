@@ -54,6 +54,18 @@ $service->loadAuthenticator('CakeTezos.SignedMessage', [
 ]);
 ```
 
+Load Component in (`src/Controller/AppController`)  :
+```php
+$this->loadComponent('CakeTezos.Network', [
+    'network' => Network::Mainnet->value,
+]);
+```
+
+Load Helper in (`src/View/AppView`) :
+```php
+$this->addHelper('CakeTezos.Tz');
+```
+
 In a view, load the element to allow connect :
 
 ```php

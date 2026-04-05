@@ -21,7 +21,6 @@ $network = Network::from($selectedNetwork);
             [],
             [
                 'cache' => [
-                    'config' => 'short',
                     'key' =>
                     sprintf(
                         'balance_%s_%s',

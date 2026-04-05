@@ -6,7 +6,7 @@ namespace CakeTezos\Domain;
 /**
  * Tez Value Object
  */
-readonly class Mutez
+class Mutez
 {
     /**
      * Initialization
