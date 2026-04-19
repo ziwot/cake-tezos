@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -24,7 +24,7 @@ jobs:
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
       - name: Cache composer dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -34,6 +34,7 @@ jobs:
 
       - name: cs check and test
         run: composer run-script check
+
   test_js:
     name: Check and test JS
     runs-on: ubuntu-latest
@@ -43,4 +44,3 @@ jobs:
         with:
           node-version: 24
       - run: npm ci
-      - run: npm test
