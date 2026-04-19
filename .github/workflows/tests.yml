@@ -6,8 +6,8 @@ on:
       - main
 
 jobs:
-  test:
-    name: Check and test
+  test_php:
+    name: Check and test PHP
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -34,3 +34,13 @@ jobs:
 
       - name: cs check and test
         run: composer run-script check
+  test_js:
+    name: Check and test JS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npm test
