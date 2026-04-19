@@ -9,7 +9,7 @@ namespace CakeTezos\Domain;
 enum Network: string
 {
     case Mainnet = 'mainnet';
-    case Ghostnet = 'ghostnet';
+    case Shadownet = 'shadownet';
     case Local = 'local';
 
     /**
@@ -19,7 +19,7 @@ enum Network: string
     {
         return match ($this) {
             Network::Mainnet => 'Mainnet',
-            Network::Ghostnet => 'Ghostnet',
+            Network::Shadownet => 'Shadownet',
             Network::Local => 'Local',
         };
     }
@@ -31,7 +31,7 @@ enum Network: string
     {
         return match ($this) {
             Network::Mainnet => 'NetXdQprcVkpaWU',
-            Network::Ghostnet => 'NetXnHfVqm9iesp',
+            Network::Shadownet => 'NetXsqzbfFenSTS',
             Network::Local => 'NetXtJqPyJGB6Pc',
         };
     }
@@ -56,7 +56,7 @@ enum Network: string
     {
         return match ($this) {
             Network::Mainnet => 'https://rpc.tzbeta.net',
-            Network::Ghostnet => 'https://rpc.ghostnet.teztnets.com',
+            Network::Shadownet => 'https://rpc.shadownet.teztnets.com',
             Network::Local => 'http://localhost:20000',
         };
     }
@@ -68,7 +68,7 @@ enum Network: string
     {
         return match ($this) {
             Network::Mainnet => 'https://api.tzkt.io',
-            Network::Ghostnet => 'https://api.ghostnet.tzkt.io',
+            Network::Shadownet => 'https://api.shadownet.tzkt.io',
             Network::Local => 'http://localhost:5000',
         };
     }
