@@ -57,7 +57,7 @@ enum Network: string
         return match ($this) {
             Network::Mainnet => 'https://rpc.tzbeta.net',
             Network::Shadownet => 'https://rpc.shadownet.teztnets.com',
-            Network::Local => 'http://localhost:20000',
+            Network::Local => 'http://localhost:8732',
         };
     }
 
