@@ -1,5 +1,5 @@
-import { DAppClient } from "@airgap/beacon-sdk";
-import { createMessagePayload, signIn } from "@siwt/sdk";
+import { DAppClient } from "@tezos-x/octez.connect-sdk";
+import { createMessagePayload, signIn } from "./utils";
 
 export const connect = async (
     network,
@@ -14,7 +14,6 @@ export const connect = async (
     const dAppClient = new DAppClient({
         name: domain,
         enableMetrics: false,
-        preferredNetwork: network.type,
         network,
     });
 
