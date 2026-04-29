@@ -14,9 +14,9 @@ $network = Network::from($selectedNetwork);
 
 <?php if ($this->Identity->isLoggedIn()) : ?>
     <div>
-        Welcome, <?php echo $this->Tz->shortenAddress($this->Identity->get('address')) ?>
+        Welcome, <?= $this->Tz->shortenAddress($this->Identity->get('address')) ?>
         (bal.
-        <?php echo $this->cell(
+        <?= $this->cell(
             'CakeTezos.Balance',
             [],
             [
@@ -30,7 +30,7 @@ $network = Network::from($selectedNetwork);
                 ],
              ],
         ) ?>)
-        <?php echo $this->Html->link(
+        <?= $this->Html->link(
             $this->Html->icon('power'),
             [
                 'prefix' => false,
@@ -47,18 +47,10 @@ $network = Network::from($selectedNetwork);
 <?php else : ?>
     <div>
         <button id="connect" class="btn">
-            <?php echo $this->Html->icon('key-fill') ?>
+            <?= $this->Html->icon('key-fill') ?>
         </button>
     </div>
 <?php endif; ?>
-
-<script type="importmap">
-    {
-        "imports": {
-            "CakeTezos": "/cake_tezos/dist/cake-tezos.js"
-        }
-    }
-</script>
 
 <script type="module">
     import {

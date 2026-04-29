@@ -45,6 +45,8 @@ Of course, when you deploy to prod, then, copy the assets :
 cake plugin assets copy
 ```
 
+## Authentication
+
 Load Authenticator and Identifier :
 
 ```php
@@ -54,17 +56,36 @@ $service->loadAuthenticator('CakeTezos.SignedMessage', [
 ]);
 ```
 
+## Network Component
+
 Load Component in (`src/Controller/AppController`)  :
+
 ```php
 $this->loadComponent('CakeTezos.Network', [
     'network' => Network::Mainnet->value,
 ]);
 ```
 
+## Helpers
+
 Load Helper in (`src/View/AppView`) :
+
 ```php
 $this->addHelper('CakeTezos.Tz');
 ```
+
+## Elements
+
+:warning: To be able to use the elements, you need to import the js module,
+you must add this at the top of your page :
+
+```php
+$this->append('script', $this->Html->importmap([
+    'CakeTezos' => '/cake_tezos/dist/cake-tezos.js'
+]));
+```
+
+### connect
 
 In a view, load the element to allow connect :
 
@@ -76,4 +97,16 @@ The statement is configurable :
 
 ```php
 <?= $this->element('CakeTezos.connect', ['statement' => 'I accept the conditions']) ?>
+```
+
+## get_metadata
+
+```php
+<?= $this->element('CakeTezos.get_metadata', [
+        'address' => $airdrop->address,
+        'callBackUrl' => $this->Url->build([
+            '_name' => 'admin:airdrops:edit',
+            $airdrop->id
+        ])
+]) ?>
 ```

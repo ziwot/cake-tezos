@@ -10,6 +10,7 @@ const fetchWithTimeout = async (resource, userOptions) => {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
+            "X-Requested-With": "XMLHttpRequest",
         },
     };
     const options = { ...defaultOptions, ...userOptions };
