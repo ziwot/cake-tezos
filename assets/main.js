@@ -60,8 +60,6 @@ export const getMetadata = async (address, callBackUrl, csrfToken) => {
     const Tezos = new TezosToolkit("http://localhost:8732");
     Tezos.addExtension(new Tzip16Module());
 
-    console.log(callBackUrl);
-
     const contract = await Tezos.contract.at(address, tzip16);
     const metadata = await contract.tzip16().getMetadata();
     // const views = await contract.tzip16().metadataViews();
