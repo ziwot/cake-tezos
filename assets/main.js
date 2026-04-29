@@ -1,4 +1,7 @@
+import { TezosToolkit } from "@taquito/taquito";
+import { Tzip16Module, tzip16 } from "@taquito/tzip16";
 import { DAppClient } from "@tezos-x/octez.connect-sdk";
+import { http } from "./http";
 import { createMessagePayload, signIn } from "./utils";
 
 export const connect = async (
@@ -51,4 +54,23 @@ export const connect = async (
     } catch (e) {
         console.log(e);
     }
+};
+
+export const getMetadata = async (address, callBackUrl, csrfToken) => {
+    const Tezos = new TezosToolkit("http://localhost:8732");
+    Tezos.addExtension(new Tzip16Module());
+
+    console.log(callBackUrl);
+
+    const contract = await Tezos.contract.at(address, tzip16);
+    const metadata = await contract.tzip16().getMetadata();
+    // const views = await contract.tzip16().metadataViews();
+
+    return http(callBackUrl, {
+        method: "POST",
+        body: JSON.stringify({
+            _csrfToken: csrfToken,
+            metadata: JSON.stringify(metadata.metadata),
+        }),
+    });
 };
