@@ -99,7 +99,7 @@ The statement is configurable :
 <?= $this->element('CakeTezos.connect', ['statement' => 'I accept the conditions']) ?>
 ```
 
-## get_metadata
+### get_metadata
 
 ```php
 <?= $this->element('CakeTezos.get_metadata', [
@@ -107,6 +107,7 @@ The statement is configurable :
         'callBackUrl' => $this->Url->build([
             '_name' => 'admin:airdrops:edit',
             $airdrop->id
-        ])
+        ]),
+        'csrfToken' => $this->request->getAttribute('csrfToken'),
 ]) ?>
 ```
