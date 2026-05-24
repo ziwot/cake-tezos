@@ -16,13 +16,12 @@ export const connect = async (
     const domain = new URL(dappUrl).hostname;
     const dAppClient = new DAppClient({
         name: domain,
-        enableMetrics: false,
         network,
     });
 
     try {
         // request wallet permissions with Beacon dAppClient
-        const permissions = await dAppClient.requestPermissions();
+        const permissions = await dAppClient.requestPermissions({});
 
         // create the message to be signed
         const messagePayload = createMessagePayload({
@@ -56,8 +55,11 @@ export const connect = async (
     }
 };
 
-export const getMetadata = async (address, callBackUrl, csrfToken) => {
-    const Tezos = new TezosToolkit("http://localhost:8732");
+/**
+ * Fetches metadata for a Tezos contract using Tzip16, then posts it to the callback URL
+ */
+export const getMetadata = async (rpcUrl, address, callBackUrl, csrfToken) => {
+    const Tezos = new TezosToolkit(rpcUrl);
     Tezos.addExtension(new Tzip16Module());
 
     const contract = await Tezos.contract.at(address, tzip16);
