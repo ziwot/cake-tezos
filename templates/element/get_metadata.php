@@ -4,6 +4,7 @@
  * @var string $address
  * @var string $callBackUrl
  * @var string $csrfToken
+ * @var string $metadataErrorHandler
  */
 
 use CakeTezos\Domain\Network;
@@ -22,13 +23,19 @@ $network = Network::from($selectedNetwork);
         getMetadata
     } from "CakeTezos";
 
-    const connectBtn = document.getElementById("get_metadata");
-    connectBtn?.addEventListener(
+    const fetchMetadataBtn = document.getElementById('get_metadata');
+    fetchMetadataBtn?.addEventListener(
         "click",
-        () => getMetadata(
-            "<?= $address ?>",
-            "<?= $callBackUrl ?>",
-            "<?= $csrfToken ?>",
-        )
+        async () => {
+            try {
+                const response = await getMetadata(
+                    "<?= $network->rpcUrl() ?>",
+                    "<?= $address ?>",
+                    "<?= $callBackUrl ?>",
+                    "<?= $csrfToken ?>",
+            )} catch (error) {
+                <?= $metadataErrorHandler ?>(error);
+            }
+        }
     );
 </script>

@@ -111,3 +111,8 @@ The statement is configurable :
         'csrfToken' => $this->request->getAttribute('csrfToken'),
 ]) ?>
 ```
+
+## Development
+
+1. Install dependencies : `composer install && npm install`
+2. Build assets : `npm run build`
