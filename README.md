@@ -109,6 +109,10 @@ The statement is configurable :
             $airdrop->id
         ]),
         'csrfToken' => $this->request->getAttribute('csrfToken'),
+
+        // js functions for UI
+        'successHandler' => 'handleSuccess',
+        'errorHandler' => 'handleError',
 ]) ?>
 ```
 
