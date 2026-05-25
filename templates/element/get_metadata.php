@@ -4,7 +4,8 @@
  * @var string $address
  * @var string $callBackUrl
  * @var string $csrfToken
- * @var string $metadataErrorHandler
+ * @var string $successHandler
+ * @var string $errorHandler
  */
 
 use CakeTezos\Domain\Network;
@@ -33,8 +34,10 @@ $network = Network::from($selectedNetwork);
                     "<?= $address ?>",
                     "<?= $callBackUrl ?>",
                     "<?= $csrfToken ?>",
-            )} catch (error) {
-                <?= $metadataErrorHandler ?>(error);
+            )
+                <?= $successHandler ?>(response);
+            } catch (error) {
+                <?= $errorHandler ?>(error);
             }
         }
     );
