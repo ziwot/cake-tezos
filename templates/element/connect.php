@@ -21,6 +21,21 @@ $redirectUrl = $redirectUrl ?? Configure::read('CakeTezos.redirect.afterLogin');
         Welcome, <?= $this->Tz->shortenAddress($this->Identity->get('address')) ?>
         (bal.
         <?= $this->cell('CakeTezos.Balance') ?>)
+        <?= $this->Form->postLink(
+            $this->Html->icon('arrow-repeat'),
+            [
+                'prefix' => false,
+                'plugin' => 'CakeTezos',
+                'controller' => 'Wallet',
+                'action' => 'refreshBalance',
+                '_method' => 'post',
+            ],
+            [
+                'class' => 'btn',
+                'escape' => false,
+                'title' => 'Refresh balance',
+            ],
+        ) ?>
         <?= $this->Html->link(
             $this->Html->icon('power'),
             [

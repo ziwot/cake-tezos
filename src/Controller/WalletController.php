@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 namespace CakeTezos\Controller;
 
+use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Event\EventInterface;
 use Cake\Http\Response;
+use CakeTezos\Domain\Network;
 
 /**
  * Wallet Controller
@@ -21,6 +23,28 @@ class WalletController extends AppController
         parent::beforeFilter($event);
 
         $this->Authentication->allowUnauthenticated(['login']);
+    }
+
+    /**
+     * @return \Cake\Http\Response|null
+     */
+    public function refreshBalance(): ?Response
+    {
+        $identity = $this->Authentication->getIdentity();
+        if ($identity === null) {
+            return $this->redirect($this->referer());
+        }
+
+        $identity = $identity->getOriginalData();
+        $network = Network::from($this->request->getSession()->read('CakeTezos.Network'));
+        $cacheKey = sprintf(
+            'balance_%s_%s',
+            $network->network()['type'],
+            $identity['address'],
+        );
+        Cache::delete($cacheKey, Configure::read('CakeTezos.cache.balance.config') ?? 'default');
+
+        return $this->redirect($this->referer());
     }
 
     /**
