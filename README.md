@@ -45,6 +45,70 @@ Of course, when you deploy to prod, then, copy the assets :
 cake plugin assets copy
 ```
 
+## Configuration
+
+The plugin is configurable via `Configure::write('CakeTezos', [...])` in your app's `config/app.php`:
+
+```php
+<?php
+return [
+    // ...
+    'CakeTezos' => [
+        'defaultNetwork' => 'mainnet',
+
+        'networks' => [
+            'mainnet' => [
+                'rpcUrl' => 'https://rpc.tzbeta.net',
+                'tzktUrl' => 'https://api.tzkt.io',
+                'networkId' => 'NetXdQprcVkpaWU',
+                'label' => 'Mainnet',
+            ],
+            'shadownet' => [
+                'rpcUrl' => 'https://rpc.shadownet.teztnets.com',
+                'tzktUrl' => 'https://api.shadownet.tzkt.io',
+                'networkId' => 'NetXsqzbfFenSTS',
+                'label' => 'Shadownet',
+            ],
+            'local' => [
+                'rpcUrl' => 'http://localhost:8732',
+                'tzktUrl' => 'http://localhost:5000',
+                'networkId' => 'NetXtJqPyJGB6Pc',
+                'label' => 'Local',
+            ],
+        ],
+
+        'redirect' => [
+            'afterLogin' => '/',
+            'afterLogout' => ['_name' => 'homepage'],
+        ],
+
+        'siwt' => [
+            'statement' => 'I accept the Terms of Service',
+        ],
+
+        'cache' => [
+            'balance' => [
+                'enabled' => true,
+                'config' => 'default',
+            ],
+        ],
+    ],
+];
+```
+
+You only need to specify the keys you want to override; the rest use the defaults above.
+
+### Per-element overrides
+
+The `connect` element accepts `statement` and `redirectUrl` overrides:
+
+```php
+<?= $this->element('CakeTezos.connect', [
+    'statement' => 'I accept the conditions',
+    'redirectUrl' => '/dashboard',
+]) ?>
+```
+
 ## Authentication
 
 Load Authenticator and Identifier :

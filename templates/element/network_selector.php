@@ -6,6 +6,11 @@
 use CakeTezos\Domain\Network;
 
 $selectedNetwork = $this->request->getSession()->read('CakeTezos.Network');
+
+$networks = [];
+foreach (Network::configured() as $key => $config) {
+    $networks[$key] = $config['label'];
+}
 ?>
 
 <?= $this->Form->create(null, ['url' => [
@@ -16,11 +21,7 @@ $selectedNetwork = $this->request->getSession()->read('CakeTezos.Network');
     '_method' => 'post',
 ]]) ?>
 
-<?= $this->Form->select('network', [
-    Network::Mainnet->value => Network::Mainnet->label(),
-    Network::Shadownet->value => Network::Shadownet->label(),
-    Network::Local->value => Network::Local->label(),
-], [
+<?= $this->Form->select('network', $networks, [
     'onchange' => 'this.form.submit()',
     'default' => $selectedNetwork,
 ]); ?>

@@ -15,7 +15,7 @@ class CakeTezosPlugin extends BasePlugin
      *
      * @var bool
      */
-    protected bool $bootstrapEnabled = false;
+    protected bool $bootstrapEnabled = true;
 
     /**
      * Console middleware

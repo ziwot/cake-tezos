@@ -12,6 +12,7 @@ export const connect = async (
     statement,
     nonce,
     issuedAt,
+    redirectUrl = "/",
 ) => {
     const domain = new URL(dappUrl).hostname;
     const dAppClient = new DAppClient({
@@ -49,7 +50,7 @@ export const connect = async (
         });
 
         dAppClient.destroy();
-        window.location.href = "/";
+        window.location.href = redirectUrl;
     } catch (e) {
         console.log(e);
     }
