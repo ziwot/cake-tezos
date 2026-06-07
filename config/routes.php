@@ -17,5 +17,10 @@ $routes->plugin(
             '/network',
             ['controller' => 'Network', 'action' => 'select'],
         );
+
+        $routes->post(
+            '/refresh-balance',
+            ['controller' => 'Wallet', 'action' => 'refreshBalance'],
+        );
     },
 );
