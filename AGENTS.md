@@ -16,7 +16,7 @@ CakePHP 5 plugin for Tezos blockchain integration (SIWT wallet auth, network swi
 ## PHPStan quirks
 
 - Level 8, uses `cakedc/cakephp-phpstan` for CakePHP rules.
-- Plugin's `AppController` extends `App\Controller\AppController` — a class that only exists via `class_alias` in `tests/bootstrap.php`. PHPStan cannot resolve it from runtime aliases, so `tests/test_app/src/AppControllerAlias.php` is added to `scanFiles` in `phpstan.neon.dist`. If you change the base controller, update both files.
+- Plugin's `AppController` extends `App\Controller\AppController` — a class that only exists via `class_alias` in `tests/bootstrap.php`. PHPStan cannot resolve it from runtime aliases, so `tests/test_app/src/AppControllerAlias.php` is added to `scanFiles` in `phpstan.neon.dist`. This file's class name doesn't match its filename, so it's excluded from phpcs in `phpcs.xml`. If you change the base controller, update both files.
 
 ## Test app
 
