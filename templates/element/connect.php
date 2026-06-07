@@ -18,7 +18,13 @@ $redirectUrl = $redirectUrl ?? Configure::read('CakeTezos.redirect.afterLogin');
 
 <?php if ($this->Identity->isLoggedIn()) : ?>
     <div>
-        Welcome, <?= $this->Tz->shortenAddress($this->Identity->get('address')) ?>
+        Welcome, <span id="address-display">
+            <?= $this->Tz->shortenAddress($this->Identity->get('address')) ?>
+        </span>
+        <button id="copy-address" class="btn p-0" title="Copy address"
+            data-address="<?= h($this->Identity->get('address')) ?>">
+            <?= $this->Html->icon('files') ?>
+        </button>
         (bal.
         <?= $this->cell('CakeTezos.Balance') ?>)
         <?= $this->Form->postLink(
@@ -62,6 +68,11 @@ $redirectUrl = $redirectUrl ?? Configure::read('CakeTezos.redirect.afterLogin');
     import {
         connect
     } from "CakeTezos";
+
+    const copyBtn = document.getElementById("copy-address");
+    copyBtn?.addEventListener("click", () => {
+        navigator.clipboard.writeText(copyBtn.dataset.address).catch(() => {});
+    });
 
     const connectBtn = document.getElementById("connect");
     connectBtn?.addEventListener(
