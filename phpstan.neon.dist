@@ -5,6 +5,6 @@ parameters:
     bootstrapFiles:
         - tests/bootstrap.php
     scanFiles:
-        - tests/test_app/src/AppControllerAlias.php
+        - tests/test_app/src/AppController.php
     paths:
         - src/
