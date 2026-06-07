@@ -4,5 +4,7 @@ parameters:
     tmpDir: 'tmp/cache/phpstan'
     bootstrapFiles:
         - tests/bootstrap.php
+    scanFiles:
+        - tests/test_app/src/AppControllerAlias.php
     paths:
         - src/
