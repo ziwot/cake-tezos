@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace CakeTezos\Controller;
 
+use Cake\Core\Configure;
 use Cake\Event\EventInterface;
 use Cake\Http\Response;
 
@@ -50,6 +51,8 @@ class WalletController extends AppController
     {
         $this->Authentication->logout();
 
-        return $this->redirect(['_name' => 'homepage']);
+        $redirect = Configure::read('CakeTezos.redirect.afterLogout');
+
+        return $this->redirect($redirect);
     }
 }

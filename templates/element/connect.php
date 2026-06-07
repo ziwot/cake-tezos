@@ -2,34 +2,25 @@
 /**
  * @var \App\View\AppView $this
  * @var mixed $statement
+ * @var mixed $redirectUrl
  */
 
+use Cake\Core\Configure;
 use Cake\I18n\Time;
 use Cake\Routing\Router;
 use CakeTezos\Domain\Network;
 
 $selectedNetwork = $this->request->getSession()->read('CakeTezos.Network');
 $network = Network::from($selectedNetwork);
+$statement = $statement ?? Configure::read('CakeTezos.siwt.statement');
+$redirectUrl = $redirectUrl ?? Configure::read('CakeTezos.redirect.afterLogin');
 ?>
 
 <?php if ($this->Identity->isLoggedIn()) : ?>
     <div>
         Welcome, <?= $this->Tz->shortenAddress($this->Identity->get('address')) ?>
         (bal.
-        <?= $this->cell(
-            'CakeTezos.Balance',
-            [],
-            [
-                'cache' => [
-                    'key' =>
-                    sprintf(
-                        'balance_%s_%s',
-                        $network->network()['type'],
-                        $this->Identity->get('address'),
-                    ),
-                ],
-             ],
-        ) ?>)
+        <?= $this->cell('CakeTezos.Balance') ?>)
         <?= $this->Html->link(
             $this->Html->icon('power'),
             [
@@ -65,9 +56,10 @@ $network = Network::from($selectedNetwork);
             "<?= Router::fullBaseUrl() ?>/cake-tezos",
             "<?= $this->request->getAttribute('csrfToken') ?>",
             "<?= $network->networkId() ?>",
-            "<?= $statement ?? 'I accept the Terms of Service' ?>",
+            "<?= $statement ?>",
             "<?= random_int(1, 100000000) ?>",
             "<?= Time::now()->format(DateTimeImmutable::ATOM) ?>",
+            "<?= $redirectUrl ?>",
         )
     );
 </script>
