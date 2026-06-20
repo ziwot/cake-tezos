@@ -44,7 +44,7 @@ class SignedMessageAuthenticator extends AbstractAuthenticator
      * Checks the fields to ensure they are supplied.
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request The request that contains login information.
-     * @return array<int|string, string>|null Username and password retrieved from a request body.
+     * @return array<string, string>|null Username and password retrieved from a request body.
      */
     protected function _getData(ServerRequestInterface $request): ?array
     {
@@ -127,10 +127,10 @@ class SignedMessageAuthenticator extends AbstractAuthenticator
             );
         }
 
-        $user = $this->_identifier->identify($data);
+        $user = $this->getIdentifier()->identify($data);
 
         if (empty($user)) {
-            return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND, $this->_identifier->getErrors());
+            return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND, $this->getIdentifier()->getErrors());
         }
 
         return new Result($user, Result::SUCCESS);
