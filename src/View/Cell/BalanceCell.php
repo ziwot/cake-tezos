@@ -10,6 +10,9 @@ use CakeTezos\Domain\Mutez;
 use CakeTezos\Domain\Network;
 use Pezos\Http\ClientFactory;
 
+/**
+ * @extends \Cake\View\Cell<\Cake\View\View>
+ */
 class BalanceCell extends Cell
 {
     /**

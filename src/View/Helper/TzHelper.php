@@ -5,6 +5,9 @@ namespace CakeTezos\View\Helper;
 
 use Cake\View\Helper;
 
+/**
+ * @extends \Cake\View\Helper<\Cake\View\View>
+ */
 class TzHelper extends Helper
 {
     /**
