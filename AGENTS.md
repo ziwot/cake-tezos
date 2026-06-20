@@ -43,5 +43,5 @@ Plugin has no models, tables, or fixtures. Tests are pure unit tests (`tests/Tes
 
 ## CI
 
-- `tests.yml`: runs `composer check` on push to main (PHP 8.1 + gmp, Node 24).
+- `tests.yml`: runs `composer check` on push to main (PHP 8.2 + gmp, Node 24).
 - `build.yml`: deploys built assets to `$ref-built` branch.
