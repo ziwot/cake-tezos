@@ -10,9 +10,9 @@
         }
     ],
     "require": {
-        "php": ">=8.1",
+        "php": ">=8.2",
         "cakephp/cakephp": "^5.0.1",
-        "cakephp/authentication": "^3.3",
+        "cakephp/authentication": "^4",
         "ziwot/pezos": "^0.2.2",
         "ziwot/tzkt-php-client": "^0.3.1"
     },

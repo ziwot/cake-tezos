@@ -13,7 +13,7 @@
 		"@taquito/taquito": "^24.3.0",
 		"@taquito/tzip16": "^24.3.0",
 		"@taquito/utils": "^24.2.0",
-		"@tezos-x/octez.connect-sdk": "^5.0.0-beta.6",
+		"@tezos-x/octez.connect-sdk": "^4.8.6",
 		"ramda": "^0.32.0"
 	},
 	"devDependencies": {
