@@ -44,5 +44,5 @@ Plugin has no models, tables, or fixtures. Tests are pure unit tests (`tests/Tes
 ## CI
 
 - `tests.yml`: runs `composer check` on push to main (PHP 8.2 + gmp, Node 24).
-- `build.yml`: uses `inpsyde/reusable-workflows` `build-and-distribute.yml`; strips `dev/` prefix to build branch (`dev/main` → `main`, `dev/feature/**` → `feature/**`). Triggers on `dev/main`, `dev/feature/**`, and `workflow_dispatch`.
+- `build.yml`: uses `inpsyde/reusable-workflows` `build-and-distribute.yml`; strips `dev/` prefix to build branch (`dev/main` → `main`, `dev/feature/**` → `feature/**`). Triggers on `dev/main`, `dev/feature/**`, and `workflow_dispatch`. The `PRE_SCRIPT` input strips the `version` field the reusable workflow injects into `composer.json`, so Packagist derives versions from tags only.
 - `release.yml`: on `v*` tag push, creates a GitHub release with `--generate-notes`. Tags must be created on the `main` build branch (contains compiled assets).
