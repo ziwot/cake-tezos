@@ -1,0 +1,544 @@
+<?php
+declare(strict_types=1);
+
+/**
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
+ * @since         1.0.0
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
+ */
+namespace Authentication;
+
+use ArrayAccess;
+use Authentication\Authenticator\AuthenticatorCollection;
+use Authentication\Authenticator\AuthenticatorInterface;
+use Authentication\Authenticator\ImpersonationInterface;
+use Authentication\Authenticator\PersistenceInterface;
+use Authentication\Authenticator\ResultInterface;
+use Authentication\Authenticator\StatelessInterface;
+use Authentication\Identifier\IdentifierInterface;
+use Cake\Core\InstanceConfigTrait;
+use Cake\Routing\Router;
+use InvalidArgumentException;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
+
+/**
+ * Authentication Service
+ */
+class AuthenticationService implements AuthenticationServiceInterface, ImpersonationInterface
+{
+    use InstanceConfigTrait;
+
+    /**
+     * Authenticator collection
+     */
+    protected ?AuthenticatorCollection $_authenticators = null;
+
+    /**
+     * Authenticator that successfully authenticated the identity.
+     */
+    protected ?AuthenticatorInterface $_successfulAuthenticator = null;
+
+    /**
+     * Result of the last authenticate() call.
+     */
+    protected ?ResultInterface $_result = null;
+
+    /**
+     * Default configuration
+     *
+     * - `authenticators` - An array of authentication objects to use for authenticating users.
+     *   You can configure multiple adapters and they will be checked sequentially
+     *   when users are identified. Each authenticator config can specify its own `identifier`.
+     * - `identityClass` - The class name of identity or a callable identity builder.
+     * - `identityAttribute` - The request attribute used to store the identity. Default to `identity`.
+     * - `unauthenticatedRedirect` - The URL to redirect unauthenticated errors to. See
+     *    AuthenticationComponent::allowUnauthenticated()
+     * - `queryParam` - The name of the query string parameter containing the previously blocked URL
+     *   in case of unauthenticated redirect, or null to disable appending the denied URL.
+     * - `redirectValidation` - Configuration for validating redirect URLs to prevent loops. See below.
+     *
+     * ### Redirect Validation Configuration:
+     *
+     * ```
+     * 'redirectValidation' => [
+     *     'enabled' => true,              // Enable validation (default: false for BC)
+     *     'maxDepth' => 1,                // Max nested "redirect=" parameters (default: 1)
+     *     'maxEncodingLevels' => 1,       // Max percent-encoding levels (default: 1)
+     *     'maxLength' => 2000,            // Max URL length in characters (default: 2000)
+     * ]
+     * ```
+     *
+     * ### Example:
+     *
+     * ```
+     * $service = new AuthenticationService([
+     *    'authenticators' => [
+     *        'Authentication.Form' => [
+     *            'identifier' => 'Authentication.Password',
+     *        ],
+     *    ],
+     * ]);
+     * ```
+     *
+     * @var array<string, mixed>
+     */
+    protected array $_defaultConfig = [
+        'authenticators' => [],
+        'identityClass' => Identity::class,
+        'identityAttribute' => 'identity',
+        'queryParam' => null,
+        'unauthenticatedRedirect' => null,
+        'redirectValidation' => [
+            'enabled' => false, // Disabled by default for backward compatibility
+            'maxDepth' => 1,
+            'maxEncodingLevels' => 1,
+            'maxLength' => 2000,
+        ],
+    ];
+
+    /**
+     * Constructor
+     *
+     * @param array<string, mixed> $config Configuration options.
+     */
+    public function __construct(array $config = [])
+    {
+        $this->setConfig($config);
+    }
+
+    /**
+     * Access the authenticator collection
+     *
+     * @return \Authentication\Authenticator\AuthenticatorCollection
+     */
+    public function authenticators(): AuthenticatorCollection
+    {
+        if (!$this->_authenticators instanceof AuthenticatorCollection) {
+            $authenticators = $this->getConfig('authenticators');
+            $this->_authenticators = new AuthenticatorCollection($authenticators);
+        }
+
+        return $this->_authenticators;
+    }
+
+    /**
+     * Loads an authenticator.
+     *
+     * @param string $name Name or class name.
+     * @param array<string, mixed> $config Authenticator configuration.
+     * @return \Authentication\Authenticator\AuthenticatorInterface
+     */
+    public function loadAuthenticator(string $name, array $config = []): AuthenticatorInterface
+    {
+        return $this->authenticators()->load($name, $config);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request The request.
+     * @return \Authentication\Authenticator\ResultInterface The result object. If none of the adapters was a success
+     *  the last failed result is returned.
+     * @throws \RuntimeException Throws a runtime exception when no authenticators are loaded.
+     */
+    public function authenticate(ServerRequestInterface $request): ResultInterface
+    {
+        $result = null;
+        /** @var \Authentication\Authenticator\AuthenticatorInterface $authenticator */
+        foreach ($this->authenticators() as $authenticator) {
+            $result = $authenticator->authenticate($request);
+            if ($result->isValid()) {
+                $this->_successfulAuthenticator = $authenticator;
+
+                return $this->_result = $result;
+            }
+
+            if ($authenticator instanceof StatelessInterface) {
+                $authenticator->unauthorizedChallenge($request);
+            }
+        }
+
+        if ($result === null) {
+            throw new RuntimeException(
+                'No authenticators loaded. You need to load at least one authenticator.',
+            );
+        }
+
+        $this->_successfulAuthenticator = null;
+
+        return $this->_result = $result;
+    }
+
+    /**
+     * Clears the identity from authenticators that store them and the request
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request The request.
+     * @param \Psr\Http\Message\ResponseInterface $response The response.
+     * @return array Return an array containing the request and response objects.
+     * @return array{request: \Psr\Http\Message\ServerRequestInterface, response: \Psr\Http\Message\ResponseInterface}
+     */
+    public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response): array
+    {
+        foreach ($this->authenticators() as $authenticator) {
+            if ($authenticator instanceof PersistenceInterface) {
+                if ($authenticator instanceof ImpersonationInterface && $authenticator->isImpersonating($request)) {
+                    $stopImpersonationResult = $authenticator->stopImpersonating($request, $response);
+                    ['request' => $request, 'response' => $response] = $stopImpersonationResult;
+                }
+                $result = $authenticator->clearIdentity($request, $response);
+                ['request' => $request, 'response' => $response] = $result;
+            }
+        }
+        $this->_successfulAuthenticator = null;
+
+        return [
+            'request' => $request->withoutAttribute($this->getConfig('identityAttribute')),
+            'response' => $response,
+        ];
+    }
+
+    /**
+     * Sets identity data and persists it in the authenticators that support it.
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request The request.
+     * @param \Psr\Http\Message\ResponseInterface $response The response.
+     * @param \ArrayAccess<string, mixed>|array<string, mixed> $identity Identity data.
+     * @return array{request: \Psr\Http\Message\ServerRequestInterface, response: \Psr\Http\Message\ResponseInterface}
+     */
+    public function persistIdentity(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        ArrayAccess|array $identity,
+    ): array {
+        foreach ($this->authenticators() as $authenticator) {
+            if ($authenticator instanceof PersistenceInterface) {
+                $result = $authenticator->persistIdentity($request, $response, $identity);
+                $request = $result['request'];
+                $response = $result['response'];
+            }
+        }
+
+        $identity = $this->buildIdentity($identity);
+
+        return [
+            'request' => $request->withAttribute($this->getConfig('identityAttribute'), $identity),
+            'response' => $response,
+        ];
+    }
+
+    /**
+     * Gets the successful authenticator instance if one was successful after calling authenticate.
+     *
+     * @return \Authentication\Authenticator\AuthenticatorInterface|null
+     */
+    public function getAuthenticationProvider(): ?AuthenticatorInterface
+    {
+        return $this->_successfulAuthenticator;
+    }
+
+    /**
+     * Convenient method to gets the successful identifier instance.
+     *
+     * @return \Authentication\Identifier\IdentifierInterface|null
+     */
+    public function getIdentificationProvider(): ?IdentifierInterface
+    {
+        if (!$this->_successfulAuthenticator instanceof AuthenticatorInterface) {
+            return null;
+        }
+
+        return $this->_successfulAuthenticator->getIdentifier();
+    }
+
+    /**
+     * Gets the result of the last authenticate() call.
+     *
+     * @return \Authentication\Authenticator\ResultInterface|null Authentication result interface
+     */
+    public function getResult(): ?ResultInterface
+    {
+        return $this->_result;
+    }
+
+    /**
+     * Gets an identity object
+     *
+     * @return \Authentication\IdentityInterface|null
+     */
+    public function getIdentity(): ?IdentityInterface
+    {
+        if (!$this->_result instanceof ResultInterface) {
+            return null;
+        }
+
+        $identityData = $this->_result->getData();
+        if (!$this->_result->isValid() || $identityData === null) {
+            return null;
+        }
+
+        return $this->buildIdentity($identityData);
+    }
+
+    /**
+     * Return the name of the identity attribute.
+     *
+     * @return string
+     */
+    public function getIdentityAttribute(): string
+    {
+        return $this->getConfig('identityAttribute');
+    }
+
+    /**
+     * Builds the identity object
+     *
+     * @param \ArrayAccess<string, mixed>|array<string, mixed> $identityData Identity data
+     * @return \Authentication\IdentityInterface
+     */
+    public function buildIdentity(ArrayAccess|array $identityData): IdentityInterface
+    {
+        if ($identityData instanceof IdentityInterface) {
+            return $identityData;
+        }
+
+        $class = $this->getConfig('identityClass');
+
+        $identity = is_callable($class) ? $class($identityData) : new $class($identityData);
+
+        if (!($identity instanceof IdentityInterface)) {
+            throw new RuntimeException(sprintf(
+                'Object `%s` does not implement `%s`',
+                $identity::class,
+                IdentityInterface::class,
+            ));
+        }
+
+        return $identity;
+    }
+
+    /**
+     * Return the URL to redirect unauthenticated users to.
+     *
+     * If the `unauthenticatedRedirect` option is not set,
+     * this method will return null.
+     *
+     * If the `queryParam` option is set a query parameter
+     * will be appended with the denied URL path.
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request The request
+     * @return string|null
+     */
+    public function getUnauthenticatedRedirectUrl(ServerRequestInterface $request): ?string
+    {
+        $target = $this->getConfig('unauthenticatedRedirect');
+        if ($target === null) {
+            return null;
+        }
+
+        if (is_array($target) && class_exists(Router::class)) {
+            $target = Router::url($target);
+        }
+
+        if ($request->getMethod() !== 'GET') {
+            return $target;
+        }
+
+        $param = $this->getConfig('queryParam');
+        if ($param === null) {
+            return $target;
+        }
+
+        $uri = $request->getUri();
+        $redirect = $uri->getPath();
+        if ($uri->getQuery()) {
+            $redirect .= '?' . $uri->getQuery();
+        }
+        $query = urlencode((string)$param) . '=' . urlencode($redirect);
+
+        /** @var array<string, mixed> $url */
+        $url = parse_url((string)$target);
+        if (isset($url['query']) && strlen((string)$url['query'])) {
+            $url['query'] .= '&' . $query;
+        } else {
+            $url['query'] = $query;
+        }
+        $fragment = isset($url['fragment']) ? '#' . $url['fragment'] : '';
+        $url['path'] ??= '/';
+
+        return $url['path'] . '?' . $url['query'] . $fragment;
+    }
+
+    /**
+     * Return the URL that an authenticated user came from or null.
+     *
+     * This reads from the URL parameter defined in the `queryParam` option.
+     * Will return null if this parameter doesn't exist or is invalid.
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request The request
+     * @return string|null
+     */
+    public function getLoginRedirect(ServerRequestInterface $request): ?string
+    {
+        $redirectParam = $this->getConfig('queryParam');
+        $params = $request->getQueryParams();
+        if (
+            empty($redirectParam) ||
+            !isset($params[$redirectParam]) ||
+            (string)$params[$redirectParam] === ''
+        ) {
+            return null;
+        }
+        $value = (string)$params[$redirectParam];
+
+        // In the `Location` header, Browsers normalize \ to /
+        // (see WHATWG URL Standard).
+        // We do the same to prevent injection via \ sequences.
+        $normalized = str_replace('\\', '/', $value);
+
+        // A leading run of `//` or `\\` are rejected
+        if (str_starts_with($normalized, '//')) {
+            return null;
+        }
+
+        $parsed = parse_url($normalized);
+        if ($parsed === false) {
+            return null;
+        }
+        if (!empty($parsed['host']) || !empty($parsed['scheme'])) {
+            return null;
+        }
+        $parsed += ['path' => '/', 'query' => ''];
+        if (str_contains($parsed['path'], '\\')) {
+            return null;
+        }
+        if (strlen($parsed['path']) && $parsed['path'][0] !== '/') {
+            $parsed['path'] = '/' . $parsed['path'];
+        }
+        if ($parsed['query']) {
+            $parsed['query'] = '?' . $parsed['query'];
+        }
+
+        $redirect = $parsed['path'] . $parsed['query'];
+
+        // Validate redirect to prevent loops if enabled
+        return $this->validateRedirect($redirect);
+    }
+
+    /**
+     * Validates a redirect URL to prevent loops and malicious patterns
+     *
+     * This method can be overridden in subclasses to implement custom validation logic.
+     *
+     * @param string $redirect The redirect URL to validate
+     * @return string|null The validated URL or null if invalid
+     */
+    protected function validateRedirect(string $redirect): ?string
+    {
+        $config = $this->getConfig('redirectValidation');
+
+        // If validation is disabled, return the URL as-is (backward compatibility)
+        if (!$config['enabled']) {
+            return $redirect;
+        }
+
+        $decodedUrl = urldecode($redirect);
+
+        // Check for nested redirect parameters
+        $redirectCount = substr_count($decodedUrl, 'redirect=');
+        if ($redirectCount >= $config['maxDepth']) {
+            return null;
+        }
+
+        // Check for multiple encoding levels (e.g., %25 = percent-encoded %)
+        $encodingCount = substr_count($redirect, '%25');
+        if ($encodingCount >= $config['maxEncodingLevels']) {
+            return null;
+        }
+
+        // Check URL length to prevent DOS attacks
+        if (strlen($redirect) > $config['maxLength']) {
+            return null;
+        }
+
+        return $redirect;
+    }
+
+    /**
+     * Impersonate a user
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request The request
+     * @param \Psr\Http\Message\ResponseInterface $response The response
+     * @param \ArrayAccess<string, mixed> $impersonator User who impersonates
+     * @param \ArrayAccess<string, mixed> $impersonated User impersonated
+     * @return array{request: \Psr\Http\Message\ServerRequestInterface, response: \Psr\Http\Message\ResponseInterface}
+     */
+    public function impersonate(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        ArrayAccess $impersonator,
+        ArrayAccess $impersonated,
+    ): array {
+        $provider = $this->getImpersonationProvider();
+
+        return $provider->impersonate($request, $response, $impersonator, $impersonated);
+    }
+
+    /**
+     * Stops impersonation
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request The request
+     * @param \Psr\Http\Message\ResponseInterface $response The response
+     * @return array{request: \Psr\Http\Message\ServerRequestInterface, response: \Psr\Http\Message\ResponseInterface}
+     */
+    public function stopImpersonating(ServerRequestInterface $request, ResponseInterface $response): array
+    {
+        $provider = $this->getImpersonationProvider();
+
+        return $provider->stopImpersonating($request, $response);
+    }
+
+    /**
+     * Returns true if impersonation is being done
+     *
+     * @param \Psr\Http\Message\ServerRequestInterface $request The request
+     * @return bool
+     */
+    public function isImpersonating(ServerRequestInterface $request): bool
+    {
+        $provider = $this->getImpersonationProvider();
+
+        return $provider->isImpersonating($request);
+    }
+
+    /**
+     * Get impersonation provider
+     *
+     * @return \Authentication\Authenticator\ImpersonationInterface
+     * @throws \InvalidArgumentException
+     */
+    protected function getImpersonationProvider(): ImpersonationInterface
+    {
+        $provider = $this->getAuthenticationProvider();
+        if (!$provider instanceof AuthenticatorInterface) {
+            throw new InvalidArgumentException('No AuthenticationProvider present.');
+        }
+        if (!($provider instanceof ImpersonationInterface)) {
+            $className = $provider::class;
+            throw new InvalidArgumentException(
+                sprintf('The %s Provider must implement ImpersonationInterface in order to use impersonation.', $className),
+            );
+        }
+
+        return $provider;
+    }
+}
