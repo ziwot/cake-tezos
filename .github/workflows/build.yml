@@ -1,20 +1,21 @@
 name: Build and push assets
 
 on:
-  workflow_dispatch:
   push:
-    branches:
-      - main
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+    branches: ["dev/main", "dev/feature/**"]
+  workflow_dispatch:
+    inputs:
+      PACKAGE_VERSION:
+        description: "Package Version"
+        required: false
 
 jobs:
-  build-assets:
+  build-and-distribute:
     uses: inpsyde/reusable-workflows/.github/workflows/build-and-distribute.yml@main
-    with:
-      BUILT_BRANCH_NAME: ${{ github.ref_name }}-built
-      NODE_VERSION: "24"
     secrets:
-      GITHUB_USER_EMAIL: "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
-      GITHUB_USER_NAME: ${{ github.actor }}
+      GITHUB_USER_EMAIL: ${{ secrets.DEPLOYBOT_EMAIL }}
+      GITHUB_USER_NAME: ${{ secrets.DEPLOYBOT_USER }}
+      GITHUB_USER_SSH_KEY: ${{ secrets.DEPLOYBOT_SSH_PRIVATE_KEY }}
+      GITHUB_USER_SSH_PUBLIC_KEY: ${{ secrets.DEPLOYBOT_SSH_PUBLIC_KEY }}
+    with:
+      PACKAGE_VERSION: ${{ inputs.PACKAGE_VERSION }}
