@@ -10,6 +10,8 @@ use Cake\Event\EventInterface;
  */
 class NetworkController extends AppController
 {
+    protected ?string $defaultTable = '';
+
     /**
      * @param \Cake\Event\EventInterface<\Cake\Controller\Controller> $event
      * @return void
