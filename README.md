@@ -184,3 +184,19 @@ The statement is configurable :
 
 1. Install dependencies : `composer install && npm install`
 2. Build assets : `npm run build`
+
+## Release
+
+Pushing to `dev/main` triggers `build-and-distribute`, which compiles assets and
+pushes them to the `main` branch. Releases are created from tags on that build
+branch, so the released source always contains the compiled assets.
+
+```sh
+git checkout dev/main && git pull
+git checkout main && git pull
+git tag v0.0.11
+git push origin v0.0.11
+```
+
+The `v*` tag push triggers the `Release` workflow, which creates the GitHub
+release with auto-generated notes.
