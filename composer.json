@@ -54,6 +54,5 @@
       "phpstan/extension-installer": true,
       "dealerdirect/phpcodesniffer-composer-installer": true
     }
-  },
-  "version": "v0.0.10+main.d41f72a"
+  }
 }
