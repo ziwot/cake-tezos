@@ -2,12 +2,22 @@ name: Build and push assets
 
 on:
   push:
-    branches: ["dev/main", "dev/feature/**"]
+    branches: ["dev/main", "dev/develop", "dev/feature/**", "dev/hotfix/**"]
+    paths:
+      - "src/**"
+      - "assets/**"
+      - "package.json"
+      - "composer.json"
+      - ".github/workflows/build-and-distribute.yml"
   workflow_dispatch:
     inputs:
       PACKAGE_VERSION:
         description: "Package Version"
         required: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build-and-distribute:
