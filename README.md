@@ -200,3 +200,8 @@ git push origin v0.0.11
 
 The `v*` tag push triggers the `Release` workflow, which creates the GitHub
 release with auto-generated notes.
+
+
+## Resources
+
+- <https://tezostaquito.io/docs/signing#signing-michelson-data>
