@@ -1,8 +1,10 @@
 import { TezosToolkit } from "@taquito/taquito";
 import { Tzip16Module, tzip16 } from "@taquito/tzip16";
-import { DAppClient } from "@tezos-x/octez.connect-sdk";
 import { http } from "./http";
 import { createMessagePayload, signIn } from "./utils";
+import { getDAppClient } from "./wallet";
+
+export { callContract, getWallet, requestOperation } from "./wallet";
 
 export const connect = async (
     network,
@@ -15,10 +17,7 @@ export const connect = async (
     redirectUrl = "/",
 ) => {
     const domain = new URL(dappUrl).hostname;
-    const dAppClient = new DAppClient({
-        name: domain,
-        network,
-    });
+    const dAppClient = getDAppClient(network, domain);
 
     try {
         // request wallet permissions with Beacon dAppClient
@@ -49,7 +48,6 @@ export const connect = async (
             _csrfToken: csrfToken,
         });
 
-        dAppClient.destroy();
         window.location.href = redirectUrl;
     } catch (e) {
         console.log(e);
