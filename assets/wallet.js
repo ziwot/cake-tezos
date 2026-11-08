@@ -1,5 +1,5 @@
 import { TezosToolkit } from "@taquito/taquito";
-import { DAppClient } from "@tezos-x/octez.connect-sdk";
+import { BeaconEvent, DAppClient } from "@tezos-x/octez.connect-sdk";
 
 const clients = new Map();
 
@@ -12,7 +12,16 @@ export const getDAppClient = (network, name = window.location.hostname) => {
     const key = clientKey(name, network);
 
     if (!clients.has(key)) {
-        clients.set(key, new DAppClient({ name, network }));
+        const client = new DAppClient({ name, network });
+
+        // The SDK warns when an account is restored before anything subscribes
+        // to ACTIVE_ACCOUNT_SET. Subscribing here also marks the active account
+        // as handled for the SIWT connect and later contract calls.
+        client
+            .subscribeToEvent(BeaconEvent.ACTIVE_ACCOUNT_SET, () => {})
+            .catch(() => {});
+
+        clients.set(key, client);
     }
 
     return clients.get(key);
