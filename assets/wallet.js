@@ -18,8 +18,8 @@ export const getDAppClient = (network, name = window.location.hostname) => {
         // to ACTIVE_ACCOUNT_SET. Subscribing here also marks the active account
         // as handled for the SIWT connect and later contract calls.
         client
-            .subscribeToEvent(BeaconEvent.ACTIVE_ACCOUNT_SET, () => { })
-            .catch(() => { });
+            .subscribeToEvent(BeaconEvent.ACTIVE_ACCOUNT_SET, () => {})
+            .catch(() => {});
 
         clients.set(key, client);
     }
