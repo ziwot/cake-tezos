@@ -1,48 +1,44 @@
 # CakeTezos
 
-CakePHP 5 plugin for Tezos blockchain integration (SIWT wallet auth, network switching).
+CakePHP 5 plugin for Tezos integration: SIWT wallet auth, network switching, balance display.
 
 ## Commands
+
+Setup: `composer install && npm install` (PHP needs the `gmp` extension).
 
 | Command | What it runs |
 |---|---|
 | `composer check` | `phpunit` → `phpstan analyse` → `phpcs` |
 | `composer test` | `phpunit` |
-| `composer stan` | `phpstan analyse` |
+| `composer stan` | `phpstan analyse` (analyzes `src/` only) |
 | `composer cs-check` / `cs-fix` | `phpcs` / `phpcbf` (CakePHP standard) |
 | `npm run build` | esbuild `assets/main.js` → `webroot/dist/cake-tezos.js` |
-| `npm run check` / `ci` | `biome check` / `biome ci` |
+| `npm run check` / `ci` | `biome check` / `biome ci` (only `assets/**/*.js`) |
 
-## PHPStan quirks
+Run one test: `vendor/bin/phpunit tests/TestCase/Identifier/TezosBaseIdentifierTest.php` or
+`composer test -- --filter testIdentify`.
 
-- Level 8, uses `cakedc/cakephp-phpstan` for CakePHP rules.
-- Plugin's `AppController` extends `App\Controller\AppController` — a class that only exists via `class_alias` in `tests/bootstrap.php`. PHPStan cannot resolve it from runtime aliases, so `tests/test_app/src/AppControllerAlias.php` is added to `scanFiles` in `phpstan.neon.dist`. This file's class name doesn't match its filename, so it's excluded from phpcs in `phpcs.xml`. If you change the base controller, update both files.
+## Test / PHPStan quirks
 
-## Test app
-
-- `tests/test_app/` provides `TestApp\Controller\AppController` (extends `Cake\Controller\Controller`).
-- `tests/bootstrap.php` aliases it to `App\Controller\AppController` so the plugin resolves at test time.
-- PHP requires the `gmp` extension (Tezos cryptography).
+- No database: no models, tables, or fixtures. Tests are pure unit tests under `tests/TestCase/`.
+- `tests/test_app/` provides `TestApp\Controller\AppController`; `tests/bootstrap.php` loads `config/bootstrap.php` and then `return`s before its `class_alias` call, so the runtime `App\Controller\AppController` alias never executes. Only identifier tests exist today; controller tests would need that autoloading fixed.
+- PHPStan level 8 with `cakedc/cakephp-phpstan`. The plugin's `AppController` extends `App\Controller\AppController`, so `tests/test_app/src/AppControllerAlias.php` declares that class and is added to `scanFiles`. Its class name doesn't match its filename, so `phpcs.xml` excludes it. If you change the base controller, update both files.
 
 ## Architecture
 
-- **Plugin**: `CakeTezos\CakeTezosPlugin` (routes enabled, no middleware/console/services).
-- **Controllers**: `NetworkController` (select network), `WalletController` (login/logout via SIWT).
-- **Auth**: `SignedMessageAuthenticator` + `TezosBaseIdentifier` — verifies Ed25519 signatures from POST data.
-- **Component**: `NetworkComponent` — persists selected network in session.
-- **Domain**: `Network` enum (Mainnet/Shadownet/Local), `Mutez` value object.
-- **View**: `TzHelper`, `BalanceCell`.
-- **Templates**: `connect`, `get_metadata`, `network_selector` elements.
-- **Routes** (under `/cake-tezos`): `POST /signin` → Wallet::login, `GET /logout` → Wallet::logout, `POST /network` → Network::select.
-- **JS assets**: Vanilla JS in `assets/`, bundled by esbuild with `esbuild-plugin-polyfill-node` for browser ESM output.
-- **Config**: `Configure::write('CakeTezos', ...)` — defaults in `config/bootstrap.php`, merged with user config.
+- **Plugin**: `CakeTezos\CakeTezosPlugin` — bootstrap + routes enabled; middleware, console, services, events disabled.
+- **Controllers**: `NetworkController::select`, `WalletController::{login,logout,refreshBalance}`.
+- **Auth**: `SignedMessageAuthenticator` reads POST fields `pk`/`pkh`/`message`/`signature` from `/cake-tezos/signin`; `TezosBaseIdentifier` verifies via `Pezos\Keys\PubKey` (tries both raw and hex-encoded message).
+- **Component**: `NetworkComponent` stores the selected network in session key `CakeTezos.Network`. Its default is `local`, and its configured `network` shadows `CakeTezos.defaultNetwork`, so that config default only applies if the component network is explicitly nulled.
+- **Domain**: `Network` enum (Mainnet/Shadownet/Local) with config-aware `rpcUrl()`/`tzktUrl()`/`networkId()`/`label()`; `Mutez` value object.
+- **View**: `TzHelper` (address shortening), `BalanceCell` (RPC balance, cached via `CakeTezos.cache.balance`).
+- **Templates**: elements `connect`, `get_metadata`, `network_selector`; cell `Balance/display`.
+- **Routes** under `/cake-tezos`: `POST /signin` → login, `GET /logout`, `POST /network` → select, `POST /refresh-balance` → refreshBalance.
+- **JS**: vanilla ESM in `assets/`; `wallet.js` wraps Octez Connect (`@tezos-x/octez.connect-sdk` v5) and exposes `getWallet`/`callContract`/`requestOperation`; `main.js` exports `connect`/`getMetadata`. Bundled only via `npm run build`; `webroot/dist/` is gitignored on `dev/*` branches.
+- **Config**: defaults in `config/bootstrap.php`, merged with user `Configure::write('CakeTezos', ...)` via `Hash::merge`.
 
-## No database
+## CI / release
 
-Plugin has no models, tables, or fixtures. Tests are pure unit tests (`tests/TestCase/Identifier/`).
-
-## CI
-
-- `tests.yml`: runs `composer check` on push to main (PHP 8.2 + gmp, Node 24).
-- `build.yml`: uses `inpsyde/reusable-workflows` `build-and-distribute.yml`; strips `dev/` prefix to build branch (`dev/main` → `main`, `dev/feature/**` → `feature/**`). Triggers on `dev/main`, `dev/feature/**`, and `workflow_dispatch`. The `PRE_SCRIPT` input strips the `version` field the reusable workflow injects into `composer.json`, so Packagist derives versions from tags only.
-- `release.yml`: on `v*` tag push, creates a GitHub release with `--generate-notes`. Tags must be created on the `main` build branch (contains compiled assets). `.github` is intentionally kept in the build output (not in `.distignore`) because GitHub Actions resolves tag-push workflows from the tag's own tree.
+- `tests.yml`: push to `dev/main` only. Runs `composer check` (PHP 8.2 + gmp) and a separate JS job (Node 24) that only runs `npm ci`, not Biome.
+- `build.yml`: triggers on pushes to `dev/main`, `dev/develop`, `dev/feature/**`, `dev/hotfix/**` (path-filtered to `src/`, `assets/`, manifests, workflow) plus `workflow_dispatch`. Uses `inpsyde/reusable-workflows` with Node 22; `PRE_SCRIPT` strips `composer.json`'s `version` so Packagist uses tags. Compiled assets land on the corresponding non-`dev/` branch.
+- `release.yml`: on `v*` tag push, runs `gh release create --generate-notes`. Tags must be created on the `main` build branch. `.github` is intentionally in the build output (not `.distignore`) so tag-push workflows resolve from the tag tree.
