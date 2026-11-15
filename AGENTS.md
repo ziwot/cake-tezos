@@ -34,7 +34,7 @@ Run one test: `vendor/bin/phpunit tests/TestCase/Identifier/TezosBaseIdentifierT
 - **View**: `TzHelper` (address shortening), `BalanceCell` (RPC balance, cached via `CakeTezos.cache.balance`).
 - **Templates**: elements `connect`, `get_metadata`, `network_selector`; cell `Balance/display`.
 - **Routes** under `/cake-tezos`: `POST /signin` → login, `GET /logout`, `POST /network` → select, `POST /refresh-balance` → refreshBalance.
-- **JS**: vanilla ESM in `assets/`; `wallet.js` wraps Octez Connect (`@tezos-x/octez.connect-sdk` v5) and exposes `getWallet`/`callContract`/`requestOperation`; `main.js` exports `connect`/`getMetadata`. Bundled only via `npm run build`; `webroot/dist/` is gitignored on `dev/*` branches.
+- **JS**: vanilla ESM in `assets/`; `wallet.js` wraps `@tezos-x/octez.js-dapp-wallet` (`BeaconWallet`) and exposes `getWallet`/`callContract`/`requestOperation`; `main.js` uses `@tezos-x/octez.js` and exports `connect`/`getMetadata`. Bundled only via `npm run build`; `webroot/dist/` is gitignored on `dev/*` branches.
 - **Config**: defaults in `config/bootstrap.php`, merged with user `Configure::write('CakeTezos', ...)` via `Hash::merge`.
 
 ## CI / release

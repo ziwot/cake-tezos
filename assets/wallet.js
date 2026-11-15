@@ -1,37 +1,37 @@
-import { TezosToolkit } from "@taquito/taquito";
-import { BeaconEvent, DAppClient } from "@tezos-x/octez.connect-sdk";
+import { TezosToolkit } from "@tezos-x/octez.js";
+import { BeaconEvent, BeaconWallet } from "@tezos-x/octez.js-dapp-wallet";
 
-const clients = new Map();
+const wallets = new Map();
 
 const clientKey = (name, network) => JSON.stringify({ name, network });
 
 /**
- * Returns the shared DAppClient for a wallet name and network.
+ * Returns the shared BeaconWallet for a wallet name and network.
  */
-export const getDAppClient = (network, name = window.location.hostname) => {
+export const getBeaconWallet = (network, name = window.location.hostname) => {
     const key = clientKey(name, network);
 
-    if (!clients.has(key)) {
-        const client = new DAppClient({ name, network });
+    if (!wallets.has(key)) {
+        const wallet = new BeaconWallet({ name, network });
 
         // The SDK warns when an account is restored before anything subscribes
         // to ACTIVE_ACCOUNT_SET. Subscribing here also marks the active account
         // as handled for the SIWT connect and later contract calls.
-        client
+        wallet.client
             .subscribeToEvent(BeaconEvent.ACTIVE_ACCOUNT_SET, () => {})
             .catch(() => {});
 
-        clients.set(key, client);
+        wallets.set(key, wallet);
     }
 
-    return clients.get(key);
+    return wallets.get(key);
 };
 
 /**
  * Returns the active wallet account, requesting permissions if needed.
  */
 export const getWallet = async (network, name = window.location.hostname) => {
-    const client = getDAppClient(network, name);
+    const client = getBeaconWallet(network, name).client;
     let account = await client.getActiveAccount();
 
     if (!account) {
@@ -60,7 +60,7 @@ export const requestOperation = async (
 };
 
 /**
- * Encodes a contract call with Taquito and sends it through the wallet.
+ * Encodes a contract call with octez.js and sends it through the wallet.
  *
  * `args` can be an object for named/annotated parameters or an array for
  * positional parameters. Returns the operation hash once the wallet has

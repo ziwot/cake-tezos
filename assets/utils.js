@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: MIT
  */
-import { stringToBytes } from "@taquito/utils";
+import { stringToBytes } from "@tezos-x/octez.js-utils";
 import {
     __,
     addIndex,

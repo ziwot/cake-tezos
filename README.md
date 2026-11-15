@@ -165,7 +165,7 @@ $network = \CakeTezos\Domain\Network::from(
 ```
 
 The optional `name` argument defaults to `window.location.hostname` and scopes the
-shared Octez Connect client.
+shared octez.js `BeaconWallet` instance.
 
 ### getWallet
 
@@ -174,8 +174,8 @@ const { client, account } = await getWallet(network);
 ```
 
 Returns the active account, requesting wallet permissions if needed, and throws when no
-account is available. `client` is the underlying Octez Connect `DAppClient`; `account`
-contains the wallet address and account info.
+account is available. `client` is the underlying `BeaconWallet.client` Octez Connect
+`DAppClient`; `account` contains the wallet address and account info.
 
 ### requestOperation
 
@@ -211,7 +211,7 @@ const { hash } = await callContract({
 });
 ```
 
-Encodes the call with Taquito, then sends it through the wallet. Pass `args` as an object
+Encodes the call with octez.js, then sends it through the wallet. Pass `args` as an object
 for named or annotated parameters, or as an array for positional parameters. When
 `sourceAddress` is provided, the call fails if the connected address does not match.
 Returns the operation hash without waiting for confirmation.
@@ -256,5 +256,5 @@ auto-generated notes.
 
 ## Resources
 
-- [Taquito message signing](https://tezostaquito.io/docs/signing#signing-michelson-data)
+- [octez.js message signing](https://octez-js.tezos.com/docs/25.0.0/signing)
 - [SIWT (Sign-In With Tezos)](https://github.com/StakeNow/SIWT)

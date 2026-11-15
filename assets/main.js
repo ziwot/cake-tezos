@@ -1,8 +1,8 @@
-import { TezosToolkit } from "@taquito/taquito";
-import { Tzip16Module, tzip16 } from "@taquito/tzip16";
+import { TezosToolkit } from "@tezos-x/octez.js";
+import { Tzip16Module, tzip16 } from "@tezos-x/octez.js-tzip16";
 import { http } from "./http";
 import { createMessagePayload, signIn } from "./utils";
-import { getDAppClient } from "./wallet";
+import { getBeaconWallet } from "./wallet";
 
 export { callContract, getWallet, requestOperation } from "./wallet";
 
@@ -17,7 +17,7 @@ export const connect = async (
     redirectUrl = "/",
 ) => {
     const domain = new URL(dappUrl).hostname;
-    const dAppClient = getDAppClient(network, domain);
+    const dAppClient = getBeaconWallet(network, domain).client;
 
     try {
         // request wallet permissions with Beacon dAppClient
